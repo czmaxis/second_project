@@ -15,6 +15,19 @@ public class ProductService {
                 "Database123"
         );
     }
+
+    private Product extractProductData(ResultSet resultSet) throws SQLException {
+        return new Product(
+                resultSet.getLong("id"),
+                resultSet.getString("partNo"),
+                resultSet.getString("name"),
+                resultSet.getString("description"),
+                resultSet.getBoolean("isForSale"),
+                resultSet.getBigDecimal("price")
+        );
+    }
+
+
         public List<Product> getAllProducts() throws SQLException {
             Statement statement =connection.createStatement();
 
@@ -32,26 +45,20 @@ public class ProductService {
         }
 
         //upravit a dodělat
-    private Product extractProductData(ResultSet resultSet) throws SQLException {
-        return new Product(
-                resultSet.getLong("id"),
-                resultSet.getString("partNo"),
-                resultSet.getString("name"),
-                resultSet.getString("description"),
-                resultSet.getBoolean("isForSale"),
-                resultSet.getBigDecimal("price")
-        );
-    }
 
-    public Product loadAllAvailabelItems() throws SQLException {
-        Statement statement= connection.createStatement();
-        ResultSet results = statement.executeQuery("SELECT * FROM item");
 
-        while (results.next()){
-            return extractProductData(results);
-        }
-        return null;
-    }
+
+//    později smazat
+
+//    public Product loadAllAvailabelItems() throws SQLException {
+//        Statement statement= connection.createStatement();
+//        ResultSet results = statement.executeQuery("SELECT * FROM item");
+//
+//        while (results.next()){
+//            return extractProductData(results);
+//        }
+//        return null;
+//    }
 
 
     public Product loadProductById(Long itemId) throws SQLException {
@@ -80,15 +87,21 @@ public class ProductService {
         return statement.getGeneratedKeys().getLong("id");
     }
 
-    public void updatePriceById(Long id) throws SQLException{
+    public void updatePriceById(Product product) throws SQLException{
         Statement statement = connection.createStatement();
-
-        statement.executeUpdate("UPDATE item  ");
+        statement.executeUpdate("UPDATE item SET price = '"+product.getPrice()+ "WHERE id = " +product.getId());
 
     }
 
+    public void deleteOutOfSaleItems(Product product) throws SQLException{
+        Statement statement = connection.createStatement();
+        statement.executeUpdate("DELETE FROM item WHERE isForSale = false");
 
-
+//        ResultSet resultSet = statement.executeQuery("SELECT * FROM item");
+//        while(resultSet.next()){
+//            statement.executeUpdate("DELETE FROM item WHERE isForSale = false");
+//        }
+    }
 
 
 }
