@@ -11,7 +11,6 @@ public class Product {
     private BigDecimal price;
 
     public Product(){
-
     }
 
     public Product(Long id, String partNo, String name, String description, Boolean isForSale, BigDecimal price) {
@@ -63,12 +62,12 @@ public class Product {
         this.description = description;
     }
 
-    public Boolean getForSale() {
+    public Boolean getIsForSale() {
         return isForSale;
     }
 
-    public void setForSale(Boolean forSale) {
-        isForSale = forSale;
+    public void setIsForSale(Boolean isForSale) {
+        this.isForSale = isForSale;
     }
 
     public BigDecimal getPrice() {

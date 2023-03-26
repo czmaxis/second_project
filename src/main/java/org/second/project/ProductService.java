@@ -1,13 +1,11 @@
 package org.second.project;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 public class ProductService {
-
-    Connection connection;
-
+    static Connection connection;
     public ProductService() throws SQLException {
         connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/items",
@@ -16,7 +14,7 @@ public class ProductService {
         );
     }
 
-    private Product extractProductData(ResultSet resultSet) throws SQLException {
+    private static Product extractProductData(ResultSet resultSet) throws SQLException {
         return new Product(
                 resultSet.getLong("id"),
                 resultSet.getString("partNo"),
@@ -27,8 +25,7 @@ public class ProductService {
         );
     }
 
-
-        public List<Product> getAllProducts() throws SQLException {
+        public static List<Product> getAllProducts() throws SQLException {
             Statement statement =connection.createStatement();
 
             ResultSet resultSet = statement.executeQuery("SELECT * FROM item");
@@ -44,24 +41,7 @@ public class ProductService {
             return resultList;
         }
 
-        //upravit a dodělat
-
-
-
-//    později smazat
-
-//    public Product loadAllAvailabelItems() throws SQLException {
-//        Statement statement= connection.createStatement();
-//        ResultSet results = statement.executeQuery("SELECT * FROM item");
-//
-//        while (results.next()){
-//            return extractProductData(results);
-//        }
-//        return null;
-//    }
-
-
-    public Product loadProductById(Long itemId) throws SQLException {
+    public static Product loadProductById(Long itemId) throws SQLException {
         Statement statement = connection.createStatement();
 
         ResultSet resultSet = statement.executeQuery("SELECT * FROM item WHERE id = " + itemId);
@@ -72,36 +52,34 @@ public class ProductService {
         return null;
     }
 
-    public long saveItem(Product newProduct) throws SQLException{
+    public static Product saveItem(Product product) throws SQLException{
         Statement statement = connection.createStatement();
 
         statement.executeUpdate(
-                "INSERT INTO item(partNo, name, description, isForSale, price) VALUES (" +
-                        "'"+ newProduct.getPartNo() +"', "
-                        +newProduct.getName() + ", "
-                        + newProduct.getDescription()+", "
-                        + newProduct.getForSale()+", "
-                        + newProduct.getPrice()+ ")",
-                    Statement.RETURN_GENERATED_KEYS);
+                "INSERT INTO item(partNo, name, description, isForSale, price)"+" VALUES('"
+                        + product.getPartNo() +"', '"
+                        + product.getName() + "', '"
+                        + product.getDescription()+"',"
+                        + product.getIsForSale()+","
+                        + product.getPrice()+ ")",
+                Statement.RETURN_GENERATED_KEYS);
+        ResultSet generatedKeys = statement.getGeneratedKeys();
+        generatedKeys.next();
+        product.setId(generatedKeys.getLong(1));
 
-        return statement.getGeneratedKeys().getLong("id");
+        return product;
     }
 
-    public void updatePriceById(Product product) throws SQLException{
+    public static void updatePriceById(Long id, BigDecimal price) throws SQLException{
         Statement statement = connection.createStatement();
-        statement.executeUpdate("UPDATE item SET price = '"+product.getPrice()+ "WHERE id = " +product.getId());
+        statement.executeUpdate("UPDATE item SET price = "+ price + " WHERE id = " + id);
 
     }
-
-    public void deleteOutOfSaleItems(Product product) throws SQLException{
+    public static void deleteOutOfSaleItems() throws SQLException{
         Statement statement = connection.createStatement();
         statement.executeUpdate("DELETE FROM item WHERE isForSale = false");
-
-//        ResultSet resultSet = statement.executeQuery("SELECT * FROM item");
-//        while(resultSet.next()){
-//            statement.executeUpdate("DELETE FROM item WHERE isForSale = false");
-//        }
     }
+
 
 
 }
